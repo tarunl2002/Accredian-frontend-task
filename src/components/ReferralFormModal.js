@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Box, TextField, Button } from '@mui/material';
+import { Modal, Box, TextField, Button,CircularProgress } from '@mui/material';
 import axios from 'axios';
 
 const style = {
@@ -19,26 +19,27 @@ const ReferralFormModal = ({ open, handleClose }) => {
   const [referrerEmail, setReferrerEmail] = useState('');
   const [friendName, setFriendName] = useState('');
   const [friendEmail, setFriendEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setLoading(true);
     const referralData = {
       referrerName,
       referrerEmail,
       friendName,
       friendEmail
     };
-
     try {
       const response = await axios.post('https://accredian-backend-task-or5a.onrender.com/api/referrals', referralData);
       console.log('Referral submitted successfully:', response.data);
-      handleClose(); 
+      handleClose(); // Close the modal on successful submission
     } catch (error) {
       console.error('Error submitting referral:', error);
+    } finally {
+      setLoading(false); // Set loading back to false regardless of success or failure
     }
   };
-
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
@@ -75,9 +76,12 @@ const ReferralFormModal = ({ open, handleClose }) => {
             value={friendEmail}
             onChange={(e) => setFriendEmail(e.target.value)}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+
+        {loading ? <CircularProgress /> :  
+        <Button type="submit" variant="contained" color="primary" fullWidth>
             Submit
-          </Button>
+          </Button>    
+          }
         </form>
       </Box>
     </Modal>
